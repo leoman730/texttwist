@@ -1,0 +1,127 @@
+$iconSpritePath: "../images/glyphicons-halflings.png";
+$iconWhiteSpritePath: "../images/glyphicons-halflings-white.png";
+
+@import 'sass-bootstrap/lib/bootstrap';
+
+.hero-unit {
+    margin: 50px auto 0 auto;
+    width: 300px;
+}
+
+
+.clearfix:after {
+	content: ".";
+	display: block;
+	clear: both;
+	visibility: hidden;
+	line-height: 0;
+	height: 0;
+}
+ 
+.clearfix {
+	display: inline-block;
+}
+ 
+html[xmlns] .clearfix {
+	display: block;
+}
+ 
+* html .clearfix {
+	height: 1%;
+}
+
+.container-fluid {
+	#texttwist {
+		width: 100%;
+		border: 1px solid #ddd;
+		border-radius: 6px;
+		padding: 5px;
+		position: relative;
+		min-height: 400px;
+
+
+		#main_game {
+			display: none;
+
+		}
+
+		#start_screen {
+			padding-top:80px;
+			#game_title {
+				display: block;
+				margin: auto;
+				font-size: 5em;
+				text-align: center;
+			}
+			#start_btn {
+				text-align: center;
+			}
+		}
+
+		.wdl_container {
+			background-color: #bbd8e9;
+			min-height: 400px;
+			.wordlist {
+				width: 100%; padding: 5px;
+				.wdl_item:not(:first-child) {
+				}
+				.wdl_item {
+					width: 100%; 
+					clear:both;
+					.char {
+						float: left;
+						border: 1px solid gray;
+						margin-right: 2px;
+						width: 20px;
+						height: 30px;
+						text-align: center;
+					}
+				}
+			}
+
+		}
+
+		.usr_wd_container {
+			min-height: 50px;
+			position: absolute;
+			top: 40px;
+			right: 5px;
+			.char {
+				div {
+					font-size: 5em;
+					text-align: center;
+				}
+			}			
+		}
+		.pc_wd_container,  {
+			min-height: 50px;
+			position: absolute;
+			bottom: 5px;
+			right: 5px;
+			.char {
+				font-size: 24px;
+				div {
+					border: 1px solid gray;
+					height: 50px;
+					font-size: 1.5em;
+					text-align: center;
+				}
+			}
+		}
+		#dashboard {
+			position: absolute;
+			min-height: 50px;
+			top: 5px;
+			right:5px;
+			// background-color: #bbd8e9;
+
+			#timer {
+				font-size: 2em;
+			}
+			button {
+				position: absolute;
+				right:0px;
+			}
+		}
+	}
+}
