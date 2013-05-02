@@ -110,12 +110,21 @@ var app = (function() { /* Define models here */
     return {
         word_tracker: [],
         status: '',
+        gameTime: 120, // in second
         init: function() {
+        	this.status = 'initialized';
             // generate dictionary 
-            this.dict = this.getDictionary();
+            this.dict = this.getDictionary();            
+            // listen to user input 
+            $('body').bind('keypress', this.processInput.bind(this));
         },
-
+        /**
+         * Start a game
+         * Initialized all necessary parameters and set up game view
+         * @return {[type]}
+         */
         start: function() {
+        	this.status = 'prograss';
             this.usr_wd = new WordModel();
             this.pc_wd = new WordModel();
             this.pc_wdl = new WordList();
@@ -146,11 +155,11 @@ var app = (function() { /* Define models here */
             this.pc_wd_orig = this.pc_wd.get('chars');
             this.usr_wd_orig = this.usr_wd.get('chars');
 
-            // listen to user input 
-            $('body').bind('keypress', this.processInput.bind(this));
+	    	$('#main_game').show();
+	    	$('#start_screen').hide();
 
             //start timer 
-            app.startTimer(5, 20);
+            app.startTimer(this.gameTime);
         },
         /**
          * Check if a word is in the given wordlist
@@ -181,7 +190,7 @@ var app = (function() { /* Define models here */
                 // reset pc_wd to original
                 this.resetWord()
 
-                // check game finish
+                // check game finihs
                 if (this.isWon()) {
                 	this.processWinner();
                 }
@@ -193,11 +202,19 @@ var app = (function() { /* Define models here */
                 // reset pc_wd to original
             }
         },
+        /**
+         * Handle winning situation
+         * @return {[type]}
+         */
         processWinner: function() {
         	clearInterval(this.interval);
 			this.status = 'won';
             alert('you won!!');
         },
+        /**
+         * Check if user won the game 
+         * @return {Boolean}
+         */
         isWon: function() {
             if (this.pc_wdl.length === this.word_tracker.length) {
                 return true;
@@ -205,7 +222,10 @@ var app = (function() { /* Define models here */
                 return false;
             }
         },
-
+        /**
+         * Reset both pc word and usr word to the orginal value before game started
+         * @return {[type]}
+         */
         resetWord: function() {
             this.pc_wd.set('chars', this.pc_wd_orig);
             this.usr_wd.set('chars', '')
@@ -223,9 +243,13 @@ var app = (function() { /* Define models here */
 
             var keycode = e.which,
                 character;
-                console.log(keycode		);
-            if (keycode == 13) { /* Enter key */
-                this.processWord();
+                console.log(keycode);
+            if (keycode === 13) { /* Enter key */
+            	if (this.status === 'initialized') {
+            		this.start();
+            	} else if (this.status === 'prograss') {
+	                this.processWord();
+            	}
             } else {
                 character = String.fromCharCode(keycode).toLowerCase();
 
@@ -236,7 +260,6 @@ var app = (function() { /* Define models here */
 
                 } else {
                     console.log('invalid character, do nothing');
-                    alert('Please enter valid character');
                 }
 
             }
@@ -272,22 +295,25 @@ var app = (function() { /* Define models here */
                 return true;
             }
         },
-        startTimer: function(minutes, seconds) {
-        	var minutes = minutes || 0;
-        	var seconds = seconds || 0;
-            var time = minutes * 60 + seconds;
+        /**
+         * Fire a timer when game start
+         * @param  {[type]} time
+         * @return {[type]}
+         */
+        startTimer: function(time) {
+        	
+            var time = time || 60;
             var $el = $('#timer');
             var self = this;
 
             self.interval = setInterval(function() {
                 
-                if (time == 0 && !self.isWon()) {
+                if (time < 0 && !self.isWon()) {
+                	$el.css({
+                		'color': 'red'
+                	});
 
-                    $el.text("countdown's over!");
-                    //alert('game over.');
-                    self.status = 'failed';       
-                    self.showResult();        
-                    clearInterval(self.interval);
+                	self.handleGameOver();
                     return;
                 }
                 
@@ -308,6 +334,16 @@ var app = (function() { /* Define models here */
                 time--;
             }, 1000);
         },
+        /**
+         * Stop a gam gracefully
+         * @return {[type]}
+         */
+        handleGameOver: function() {
+	        alert('game over.');
+	        this.status = 'failed';       
+	        this.showResult();        
+	        clearInterval(this.interval);        	
+        },
 
         /**
          * Pick and get getRamdomWordList wordlist from given dict
@@ -317,19 +353,31 @@ var app = (function() { /* Define models here */
             dict = _.first(_.shuffle(dict));
             return dict;
         },
-
+       	/**
+       	 * Display the wordlist
+       	 * 
+       	 */
         showResult: function() {
         	_.each(this.pc_wdl.models, function(wd){
         		wd.trigger('show_word');
         	});
         },
+        /**
+         * Give user option to play a new game
+         * @return {[type]}
+         */	
         resetGame: function(){
+        	if (this.status === 'prograss') {
+        		var confirm = window.confirm("Are you sure want to restart the game?");
+        		if (!confirm) {
+        			return false;
+        		}
+        	} 
         	clearInterval(this.interval);
         	$('.wordlist').remove();
         	$('.pc_wd_container').text('');
         	$('.usr_wd_container').text('');
         	$('#timer').text('');
-        	$('body').unbind('keypress');
         	this.start();
         },
         /**
@@ -343,44 +391,130 @@ var app = (function() { /* Define models here */
             var dic = [];
             var collection = new WordList();
             collection.add(new WordModel({
-                'chars': 'bad'
+                'chars': 'cot'
             }));
             collection.add(new WordModel({
-                'chars': 'bed'
+                'chars': 'ort'
             }));
             collection.add(new WordModel({
-                'chars': 'fed'
+                'chars': 'roc'
             }));
             collection.add(new WordModel({
-                'chars': 'fade'
+                'chars': 'rot'
             }));
             collection.add(new WordModel({
-                'chars': 'decaf'
+                'chars': 'tic'
             }));
+            collection.add(new WordModel({
+                'chars': 'coir'
+            }));
+            collection.add(new WordModel({
+                'chars': 'riot'
+            }));
+            collection.add(new WordModel({
+                'chars': 'trio'
+            }));
+            collection.add(new WordModel({
+               'chars': 'victor'
+            }));            
+
             var wdl = {};
-            wdl.key = 'abcdef';
+			wdl.key = 'tocriv';
             wdl.list = collection;
             dic.push(wdl);
 
             var collection = new WordList();
-             		collection.add(new WordModel({'chars':'he'}));        		
-             		collection.add(new WordModel({'chars':'why'}));
-             		collection.add(new WordModel({'chars':'yeah'}));
-             		collection.add(new WordModel({'chars':'hey'}));
-             		collection.add(new WordModel({'chars':'age'}));
-             		collection.add(new WordModel({'chars':'way'})); 
+             		collection.add(new WordModel({'chars':'ago'}));        		
+             		collection.add(new WordModel({'chars':'ash'}));
+             		collection.add(new WordModel({'chars':'gas'}));
+             		collection.add(new WordModel({'chars':'hag'}));
+             		collection.add(new WordModel({'chars':'ham'}));
+             		collection.add(new WordModel({'chars':'has'})); 
+             		collection.add(new WordModel({'chars':'hog'}));        		
+             		collection.add(new WordModel({'chars':'ohm'}));
+             		collection.add(new WordModel({'chars':'sag'}));
+             		collection.add(new WordModel({'chars':'gash'}));
+             		collection.add(new WordModel({'chars':'gosh'}));
+             		collection.add(new WordModel({'chars':'hags'}));                     		
+             		collection.add(new WordModel({'chars':'hams'}));
+             		collection.add(new WordModel({'chars':'hogs'}));
+             		collection.add(new WordModel({'chars':'mash'}));
+             		collection.add(new WordModel({'chars':'ohms'})); 
+             		collection.add(new WordModel({'chars':'shag'}));        		
+             		collection.add(new WordModel({'chars':'sham'}));
+             		collection.add(new WordModel({'chars':'smog'}));
+      
                  	var wdl = {};
-                 	wdl.key = 'yhgewa';
+                 	wdl.key = 'homags';
                  	wdl.list = collection;
                  	dic.push(wdl);
+
             var collection = new WordList();
-             		collection.add(new WordModel({'chars':'age'}));
-             		collection.add(new WordModel({'chars':'bag'}));
-             		collection.add(new WordModel({'chars':'beg'}));
-             		collection.add(new WordModel({'chars':'cab'}));
-             		collection.add(new WordModel({'chars':'cage'}));
+             		collection.add(new WordModel({'chars':'ire'}));
+             		collection.add(new WordModel({'chars':'jet'}));
+             		collection.add(new WordModel({'chars':'ret'}));
+             		collection.add(new WordModel({'chars':'tie'}));
+             		collection.add(new WordModel({'chars':'tit'}));
+             		collection.add(new WordModel({'chars':'rite'}));
+             		collection.add(new WordModel({'chars':'tier'}));
+             		collection.add(new WordModel({'chars':'tire'}));
+             		collection.add(new WordModel({'chars':'trite'}));
                  	var wdl = {};	
-                 	wdl.key = 'geabc';
+                 	wdl.key = 'tijter';
+                 	wdl.list = collection;
+                 	dic.push(wdl);
+
+
+
+            var collection = new WordList();
+             		collection.add(new WordModel({'chars':'erg'}));
+             		collection.add(new WordModel({'chars':'rue'}));
+             		collection.add(new WordModel({'chars':'rug'}));
+             		collection.add(new WordModel({'chars':'sue'}));
+             		collection.add(new WordModel({'chars':'use'}));
+             		collection.add(new WordModel({'chars':'ergs'}));
+             		collection.add(new WordModel({'chars':'rues'}));
+             		collection.add(new WordModel({'chars':'rugs'}));
+             		collection.add(new WordModel({'chars':'ruse'}));
+             		collection.add(new WordModel({'chars':'sure'}));
+             		collection.add(new WordModel({'chars':'urge'}));
+             		collection.add(new WordModel({'chars':'user'}));
+             		collection.add(new WordModel({'chars':'surge'}));
+             		collection.add(new WordModel({'chars':'urges'}));
+
+                 	var wdl = {};	
+                 	wdl.key = 'ursueg';
+                 	wdl.list = collection;
+                 	dic.push(wdl);
+
+
+            var collection = new WordList();
+             		collection.add(new WordModel({'chars':'ant'}));
+             		collection.add(new WordModel({'chars':'ate'}));
+             		collection.add(new WordModel({'chars':'eat'}));
+             		collection.add(new WordModel({'chars':'net'}));
+             		collection.add(new WordModel({'chars':'sat'}));
+             		collection.add(new WordModel({'chars':'sea'}));
+             		collection.add(new WordModel({'chars':'set'}));
+             		collection.add(new WordModel({'chars':'tan'}));
+             		collection.add(new WordModel({'chars':'tea'}));
+             		collection.add(new WordModel({'chars':'ten'}));
+             		collection.add(new WordModel({'chars':'ante'}));
+             		collection.add(new WordModel({'chars':'ants'}));
+             		collection.add(new WordModel({'chars':'east'}));
+             		collection.add(new WordModel({'chars':'eats'}));
+             		collection.add(new WordModel({'chars':'neat'}));
+             		collection.add(new WordModel({'chars':'nest'}));
+             		collection.add(new WordModel({'chars':'nets'}));
+             		collection.add(new WordModel({'chars':'sane'}));
+             		collection.add(new WordModel({'chars':'sate'}));
+             		collection.add(new WordModel({'chars':'seat'}));
+             		collection.add(new WordModel({'chars':'sent'}));
+             		collection.add(new WordModel({'chars':'tans'}));   
+             		collection.add(new WordModel({'chars':'teas'}));
+             		collection.add(new WordModel({'chars':'tens'}));
+                 	var wdl = {};	
+                 	wdl.key = 'tannes';
                  	wdl.list = collection;
                  	dic.push(wdl);
             return dic;
@@ -390,12 +524,10 @@ var app = (function() { /* Define models here */
 
 $('document').ready(function() {
     app.init();
-    
+   	$('body').focus();
+
     $('#start_screen #start_btn').click(function(){
-    	$('#main_game').show();
-    	$('#start_screen').hide();
-    	app.start();
-    	app.startTimer(5, 20);    	
+    	app.start();    	
     });
 
     $('#main_game #new_game').click(function(){

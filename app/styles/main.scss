@@ -33,12 +33,13 @@ html[xmlns] .clearfix {
 .container-fluid {
 	#texttwist {
 		width: 100%;
+
 		border: 1px solid #ddd;
 		border-radius: 6px;
 		padding: 5px;
 		position: relative;
 		min-height: 400px;
-
+		min-width: 360px;
 
 		#main_game {
 			display: none;
@@ -61,6 +62,7 @@ html[xmlns] .clearfix {
 		.wdl_container {
 			background-color: #bbd8e9;
 			min-height: 400px;
+			min-width: 100px;
 			.wordlist {
 				width: 100%; padding: 5px;
 				.wdl_item:not(:first-child) {
@@ -72,8 +74,9 @@ html[xmlns] .clearfix {
 						float: left;
 						border: 1px solid gray;
 						margin-right: 2px;
-						width: 20px;
-						height: 30px;
+						width: 15px;
+						height: 20px;
+						font-size: 0.7em;
 						text-align: center;
 					}
 				}
@@ -117,6 +120,7 @@ html[xmlns] .clearfix {
 
 			#timer {
 				font-size: 2em;
+				min-width: 120px;
 			}
 			button {
 				position: absolute;
