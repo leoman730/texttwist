@@ -7,7 +7,7 @@
  * 
  */
 
-var app = (function() { /* Define models here */
+var texttwist = function() { /* Define models here */
     var WordModel = Backbone.Model.extend({
         defaults: {
             'chars': ''
@@ -159,7 +159,7 @@ var app = (function() { /* Define models here */
 	    	$('#start_screen').hide();
 
             //start timer 
-            app.startTimer(this.gameTime);
+            this.startTimer(this.gameTime);
         },
         /**
          * Check if a word is in the given wordlist
@@ -520,9 +520,10 @@ var app = (function() { /* Define models here */
             return dic;
         }
     };
-})();
+};
 
 $('document').ready(function() {
+	var app = new texttwist();
     app.init();
    	$('body').focus();
 

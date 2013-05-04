@@ -7,7 +7,7 @@ mocha.setup({
 });
 var expect = chai.expect;
 var assert = chai.assert;
-var testApp = new app();
+var testApp = new texttwist();
 
 
 
